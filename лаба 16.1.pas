@@ -1,26 +1,79 @@
-﻿var
-  inputFile, outputFile: Text;
-  List: array of Integer;
-  i: Integer;
+﻿program ReverseList;
 
-begin
-  Assign(inputFile, 'input.txt');
-  Reset(inputFile);
-
-  SetLength(List, 0);
-  while not Eof(inputFile) do
-  begin
-    SetLength(List, Length(List) + 1);
-    Readln(inputFile, List[High(List)]);
+type
+  PNode = ^Node;
+  Node = record
+    data: Integer;
+    next: PNode;
   end;
 
-  Close(inputFile);
+var
+  InputFile, OutputFile: text;
+  StackTop: PNode;
 
-  Assign(outputFile, 'output.txt');
-  Rewrite(outputFile);
+// Функция для добавления элемента в стек
+procedure Push(var Head: PNode; x: Integer);
+var
+  NewNode: PNode;
+begin
+  New(NewNode);
+  NewNode^.Data := x;
+  NewNode^.Next := Head;
+  Head := NewNode;
+end;
 
-  for i := High(List) downto Low(List) do
-    Writeln(outputFile, List[i]);
+// снятие верхнего элемента
+function Pop(var Head: PNode): Integer;
+var
+  q: PNode;
+begin
+  if Head = nil then
+  begin
+    writeln('Стек пуст');
+    Exit;
+  end
+  else
+  begin
+    q := Head;
+    Pop := q^.Data;
+    Head := Head^.Next;
+    Dispose(q);
+  end;
+end;
 
-  Close(outputFile);
+//чтения списка
+procedure ReadListAndPushToStack(FileName: string);
+var
+  Num: Integer;
+begin
+  Assign(InputFile, FileName);
+  Reset(InputFile);
+  while not eof(InputFile) do
+  begin
+    Readln(InputFile, Num);
+    Push(StackTop, Num);
+  end;
+  Close(InputFile);
+end;
+
+// запись  обратном порядке
+procedure WriteStackToList(FileName: string);
+var
+  Num: Integer;
+begin
+  Assign(OutputFile, FileName);
+  Rewrite(OutputFile);
+  while StackTop <> nil do
+  begin
+    Num := Pop(StackTop);
+    Writeln(OutputFile, Num);
+  end;
+  Close(OutputFile);
+end;
+
+begin
+  StackTop := nil;
+  ReadListAndPushToStack('input.txt');
+  WriteStackToList('output.txt');
+  writeln('Готово');
 end.
